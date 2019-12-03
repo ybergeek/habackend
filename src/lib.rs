@@ -49,6 +49,7 @@ pub fn rocket() -> rocket::Rocket {
                 routes::users::put_user,
                 routes::users::get_user,
                 routes::users::post_users_error,
+                routes::users::update_pwd,
                 routes::conditions::conditions,
             ],
         )

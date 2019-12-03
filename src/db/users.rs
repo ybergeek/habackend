@@ -91,13 +91,13 @@ pub struct UpdateUserData {
     email: Option<String>,
     bio: Option<String>,
     image: Option<String>,
-
     // hack to skip the field
     #[column_name = "hash"]
     password: Option<String>,
 }
 
-pub fn update(conn: &PgConnection, id: i32, data: &UpdateUserData) -> Option<User> {
+pub fn update(conn: &PgConnection, id: i32,  data: &UpdateUserData) -> Option<User> {
+
     let data = &UpdateUserData {
         password: None,
         ..data.clone()
@@ -105,5 +105,23 @@ pub fn update(conn: &PgConnection, id: i32, data: &UpdateUserData) -> Option<Use
     diesel::update(users::table.find(id))
         .set(data)
         .get_result(conn)
+        .ok()
+}
+#[derive( AsChangeset)]
+#[table_name = "users"]
+pub struct ChangePwd<'a> {
+    pub hash: &'a str,
+}
+pub fn update_pwd(
+    conn: &PgConnection,
+    id: i32,
+    password: &str,
+) -> Option<User> {
+
+    let token = &scrypt_simple(password, &ScryptParams::new(14, 8, 1)).expect("hash error");
+
+    diesel::update(users::table.find(id))
+        .set(users::hash.eq(token))
+        .get_result::<User>(conn)
         .ok()
 }

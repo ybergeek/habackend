@@ -89,3 +89,23 @@ pub struct UpdateUser {
 pub fn put_user(user: Json<UpdateUser>, auth: Auth, conn: db::Conn) -> Option<JsonValue> {
     db::users::update(&conn, auth.id, &user.user).map(|user| json!({ "user": user.to_user_auth() }))
 }
+#[derive(Deserialize)]
+pub struct UserPwd {
+    user: ChangePwd,
+}
+#[derive(Deserialize, Validate)]
+struct ChangePwd {
+    #[validate(length(min = "8"))]
+    password: Option<String>,
+}
+#[put("/changepwd", format = "json", data = "<user>")]
+pub fn update_pwd(user: Json<UserPwd>, auth: Auth, conn: db::Conn) -> Result<JsonValue, Errors> {
+    let change_pwd = user.into_inner().user;
+    let mut extractor = FieldValidator::default();
+    let password = extractor.extract("password", change_pwd.password);
+
+    extractor.check()?;
+    db::users::update_pwd(&conn, auth.id, &password)
+    .map(|user| json!({ "user": user.to_user_auth() }))
+    .ok_or_else(|| Errors::new(&[("password", "is invalid")]))
+}
