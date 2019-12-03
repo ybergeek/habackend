@@ -55,22 +55,22 @@ pub fn create(
 }
 
 pub fn login(conn: &PgConnection, email: &str, password: &str) -> Option<User> {
-    let now =SystemTime::now();
-    println!("before select email {:?}", now);
+
+    println!("before select email {:?}", SystemTime::now());
 
     let user = users::table
         .filter(users::email.eq(email))
         .get_result::<User>(conn)
         .map_err(|err| eprintln!("login_user: {}", err))
         .ok()?;
-    let difference = now.duration_since(now);
-    println!("before password matches {:?}", difference);
+    
+    println!("before password matches {:?}", SystemTime::now());
 
     let password_matches = scrypt_check(password, &user.hash)
         .map_err(|err| eprintln!("login_user: scrypt_check: {}", err))
         .ok()?;
-    let diff2 = now.duration_since(now);
-    println!("after password matches {:?} ", diff2);
+
+    println!("after password matches {:?} ", SystemTime::now());
 
     if password_matches {
         Some(user)
