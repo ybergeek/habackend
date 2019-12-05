@@ -9,4 +9,5 @@ backend.iml
 .idea/vcs.xml
 .idea/workspace.xml
 .project
-
+/script
+/pic
