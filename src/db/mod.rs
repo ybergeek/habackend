@@ -3,9 +3,8 @@ use rocket_contrib::databases::diesel;
 use std::collections::HashMap;
 use std::env;
 
-
-pub mod users;
 pub mod conditions;
+pub mod users;
 
 pub fn config() -> Config {
     let environment = Environment::active().expect("No environment found");
@@ -38,8 +37,8 @@ pub struct Conn(diesel::PgConnection);
 
 use diesel::prelude::*;
 
-use diesel::query_builder::*;
 use diesel::pg::Pg;
+use diesel::query_builder::*;
 use diesel::sql_types::BigInt;
 
 pub trait OffsetLimit: Sized {
@@ -62,7 +61,6 @@ pub struct OffsetLimited<T> {
     offset: i64,
     limit: i64,
 }
-
 
 impl<T: Query> Query for OffsetLimited<T> {
     type SqlType = (T::SqlType, BigInt);

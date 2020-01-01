@@ -12,9 +12,9 @@ extern crate diesel;
 use validator;
 #[macro_use]
 extern crate validator_derive;
+extern crate chrono;
 extern crate r2d2;
 extern crate r2d2_diesel;
-extern crate chrono;
 #[macro_use]
 extern crate serde_derive;
 
@@ -51,6 +51,7 @@ pub fn rocket() -> rocket::Rocket {
                 routes::users::post_users_error,
                 routes::users::update_pwd,
                 routes::conditions::conditions,
+                routes::conditions::query_view,
             ],
         )
         .attach(db::Conn::fairing())

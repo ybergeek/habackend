@@ -1,11 +1,10 @@
 use crate::models::user::User;
 use crate::schema::users;
-use std::time::{SystemTime};
 use crypto::scrypt::{scrypt_check, scrypt_simple, ScryptParams};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::result::{DatabaseErrorKind, Error};
-
+use std::time::SystemTime;
 
 #[derive(Insertable)]
 #[table_name = "users"]
@@ -55,7 +54,6 @@ pub fn create(
 }
 
 pub fn login(conn: &PgConnection, email: &str, password: &str) -> Option<User> {
-
     println!("before select email {:?}", SystemTime::now());
 
     let user = users::table
@@ -63,7 +61,7 @@ pub fn login(conn: &PgConnection, email: &str, password: &str) -> Option<User> {
         .get_result::<User>(conn)
         .map_err(|err| eprintln!("login_user: {}", err))
         .ok()?;
-    
+
     println!("before password matches {:?}", SystemTime::now());
 
     let password_matches = scrypt_check(password, &user.hash)
@@ -92,7 +90,7 @@ pub fn find(conn: &PgConnection, id: i32) -> Option<User> {
 }
 
 // TODO: remove clone when diesel will allow skipping fields
-#[derive( AsChangeset, Default, Clone,Serialize,Deserialize)]
+#[derive(AsChangeset, Default, Clone, Serialize, Deserialize)]
 #[table_name = "users"]
 pub struct UpdateUserData {
     username: Option<String>,
@@ -104,8 +102,7 @@ pub struct UpdateUserData {
     password: Option<String>,
 }
 
-pub fn update(conn: &PgConnection, id: i32,  data: &UpdateUserData) -> Option<User> {
-
+pub fn update(conn: &PgConnection, id: i32, data: &UpdateUserData) -> Option<User> {
     let data = &UpdateUserData {
         password: None,
         ..data.clone()
@@ -115,17 +112,12 @@ pub fn update(conn: &PgConnection, id: i32,  data: &UpdateUserData) -> Option<Us
         .get_result(conn)
         .ok()
 }
-#[derive( AsChangeset)]
+#[derive(AsChangeset)]
 #[table_name = "users"]
 pub struct ChangePwd<'a> {
     pub hash: &'a str,
 }
-pub fn update_pwd(
-    conn: &PgConnection,
-    id: i32,
-    password: &str,
-) -> Option<User> {
-
+pub fn update_pwd(conn: &PgConnection, id: i32, password: &str) -> Option<User> {
     let token = &scrypt_simple(password, &ScryptParams::new(14, 8, 1)).expect("hash error");
 
     diesel::update(users::table.find(id))

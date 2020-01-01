@@ -1,7 +1,6 @@
-use rocket::request::{self, FromRequest, Request};
 use rocket::http::Status;
+use rocket::request::{self, FromRequest, Request};
 use rocket::Outcome;
-
 
 use frank_jwt as jwt;
 use serde_json;
@@ -66,16 +65,21 @@ fn extract_token_from_header(header: &str) -> Option<&str> {
 /// Decode token into `Auth` struct. If any error is encountered, log it
 /// an return None.
 fn decode_token(token: &str) -> Option<Auth> {
-    jwt::decode(token, &config::SECRET.to_string(), jwt::Algorithm::HS256,&jwt::ValidationOptions::default())
-        .map(|(_, payload)| {
-            serde_json::from_value::<Auth>(payload)
-                .map_err(|err| {
-                    eprintln!("Auth serde decode error: {:?}", err);
-                })
-                .ok()
-        })
-        .unwrap_or_else(|err| {
-            eprintln!("Auth decode error: {:?}", err);
-            None
-        })
+    jwt::decode(
+        token,
+        &config::SECRET.to_string(),
+        jwt::Algorithm::HS256,
+        &jwt::ValidationOptions::default(),
+    )
+    .map(|(_, payload)| {
+        serde_json::from_value::<Auth>(payload)
+            .map_err(|err| {
+                eprintln!("Auth serde decode error: {:?}", err);
+            })
+            .ok()
+    })
+    .unwrap_or_else(|err| {
+        eprintln!("Auth decode error: {:?}", err);
+        None
+    })
 }

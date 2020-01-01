@@ -17,6 +17,7 @@ r2d2-diesel = "1.0"
 r2d2 = "0.8"
 frank_jwt = "3.1.2"
 chrono = {version = "0.4", features = ["serde"]}
+chrono-tz = "0.5"
 bigdecimal = { version = "0.1.0", features = ["serde"] }
 diesel = {version = "1.4.1", features = ["postgres", "r2d2","chrono","numeric"]}
 validator = "0.8.0"

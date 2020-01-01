@@ -1,7 +1,6 @@
 use crate::auth::Auth;
 use chrono::{Duration, Utc};
 
-
 type Url = String;
 
 #[derive(Queryable, Serialize)]

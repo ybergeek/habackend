@@ -20,7 +20,11 @@ struct NewUserData {
 }
 
 #[post("/users", format = "json", data = "<new_user>")]
-pub fn post_users(new_user: Json<NewUser>,_auth: Auth, conn: db::Conn) -> Result<JsonValue, Errors> {
+pub fn post_users(
+    new_user: Json<NewUser>,
+    _auth: Auth,
+    conn: db::Conn,
+) -> Result<JsonValue, Errors> {
     let new_user = new_user.into_inner().user;
 
     let mut extractor = FieldValidator::validate(&new_user);
@@ -40,9 +44,9 @@ pub fn post_users(new_user: Json<NewUser>,_auth: Auth, conn: db::Conn) -> Result
             Errors::new(&[(field, "has already been taken")])
         })
 }
-#[get("/users",  rank = 2)]
+#[get("/users", rank = 2)]
 pub fn post_users_error() -> JsonValue {
-     json!(
+    json!(
         {
             "success": false,
             "message": "Not authorized"
@@ -106,6 +110,6 @@ pub fn update_pwd(user: Json<UserPwd>, auth: Auth, conn: db::Conn) -> Result<Jso
 
     extractor.check()?;
     db::users::update_pwd(&conn, auth.id, &password)
-    .map(|user| json!({ "user": user.to_user_auth() }))
-    .ok_or_else(|| Errors::new(&[("password", "is invalid")]))
+        .map(|user| json!({ "user": user.to_user_auth() }))
+        .ok_or_else(|| Errors::new(&[("password", "is invalid")]))
 }

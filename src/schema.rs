@@ -25,11 +25,14 @@ table! {
         hash -> Text,
     }
 }
+table! {
+    avg_min_max(device_id){
+        time -> Timestamptz,
+        device_id -> Text,
+        temperature -> Numeric,
+    }
+}
 
 joinable!(conditions -> locations (device_id));
 
-allow_tables_to_appear_in_same_query!(
-    conditions,
-    locations,
-    users,
-);
+allow_tables_to_appear_in_same_query!(conditions, locations, users,);

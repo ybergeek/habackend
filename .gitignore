@@ -2,7 +2,6 @@
 **/*.rs.bk
 Cargo.lock
 .env
-backend.iml
 .gitignore 
 .idea/misc.xml
 .idea/modules.xml
@@ -11,3 +10,5 @@ backend.iml
 .project
 /script
 /pic
+/postgrest
+habackend.iml
