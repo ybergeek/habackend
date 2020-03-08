@@ -1,6 +1,10 @@
 use crate::models::user::User;
 use crate::schema::users;
-use crypto::scrypt::{scrypt_check, scrypt_simple, ScryptParams};
+//use crypto::scrypt::{scrypt_check, scrypt_simple, ScryptParams};
+extern crate scrypt;
+
+use scrypt::{ScryptParams, scrypt_simple, scrypt_check};
+
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::result::{DatabaseErrorKind, Error};
@@ -39,8 +43,11 @@ pub fn create(
     password: &str,
 ) -> Result<User, UserCreationError> {
     // see https://blog.filippo.io/the-scrypt-parameters
-    let hash = &scrypt_simple(password, &ScryptParams::new(14, 8, 1)).expect("hash error");
-
+    //let hash = &scrypt_simple(password, &ScryptParams::new(14, 8, 1)).expect("hash error");
+    let params = ScryptParams::new(14, 8, 1).unwrap();
+// Hash the password for storage
+    let hash = &scrypt_simple(password, &params)
+        .expect("OS RNG should not fail");
     let new_user = &NewUser {
         username,
         email,
@@ -64,9 +71,8 @@ pub fn login(conn: &PgConnection, email: &str, password: &str) -> Option<User> {
 
     println!("before password matches {:?}", SystemTime::now());
 
-    let password_matches = scrypt_check(password, &user.hash)
-        .map_err(|err| eprintln!("login_user: scrypt_check: {}", err))
-        .ok()?;
+    let password_matches = scrypt_check(password, &user.hash).is_ok();
+
 
     println!("after password matches {:?} ", SystemTime::now());
 
@@ -118,8 +124,11 @@ pub struct ChangePwd<'a> {
     pub hash: &'a str,
 }
 pub fn update_pwd(conn: &PgConnection, id: i32, password: &str) -> Option<User> {
-    let token = &scrypt_simple(password, &ScryptParams::new(14, 8, 1)).expect("hash error");
-
+   // let token = &scrypt_simple(password, &ScryptParams::new(14, 8, 1)).expect("hash error");
+    let params = ScryptParams::new(14, 8, 1).unwrap();
+// Hash the password for storage
+    let token = &scrypt_simple(password, &params)
+        .expect("OS RNG should not fail");
     diesel::update(users::table.find(id))
         .set(users::hash.eq(token))
         .get_result::<User>(conn)
