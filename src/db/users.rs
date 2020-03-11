@@ -1,14 +1,14 @@
 use crate::models::user::User;
 use crate::schema::users;
-//use crypto::scrypt::{scrypt_check, scrypt_simple, ScryptParams};
 extern crate scrypt;
-
+extern crate time;
+use time::PreciseTime;
 use scrypt::{ScryptParams, scrypt_simple, scrypt_check};
 
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::result::{DatabaseErrorKind, Error};
-use std::time::SystemTime;
+
 
 #[derive(Insertable)]
 #[table_name = "users"]
@@ -61,20 +61,18 @@ pub fn create(
 }
 
 pub fn login(conn: &PgConnection, email: &str, password: &str) -> Option<User> {
-    println!("before select email {:?}", SystemTime::now());
-
+    let start = PreciseTime::now();
     let user = users::table
         .filter(users::email.eq(email))
         .get_result::<User>(conn)
         .map_err(|err| eprintln!("login_user: {}", err))
         .ok()?;
 
-    println!("before password matches {:?}", SystemTime::now());
-
     let password_matches = scrypt_check(password, &user.hash).is_ok();
+    let end = PreciseTime::now();
 
+    println!("{} seconds for functions", start.to(end));
 
-    println!("after password matches {:?} ", SystemTime::now());
 
     if password_matches {
         Some(user)

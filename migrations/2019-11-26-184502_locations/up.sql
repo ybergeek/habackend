@@ -4,7 +4,6 @@ create table locations(
 , environment  text not null
 ,show_in_graph boolean not null
 ,  unit varchar(10) not null
-,
 );
 INSERT INTO locations (device_id,"location",environment,show_in_graph,unit) VALUES
 ('outhouse','Lovis','outhouse',true,'&deg;C')
