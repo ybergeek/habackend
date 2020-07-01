@@ -1,5 +1,9 @@
 use crate::config::DATE_FORMAT;
 use chrono;
+use diesel::sql_types::{Numeric, Text, Timestamptz};
+use chrono::Utc;
+use chrono::Local;
+use chrono::prelude::*;
 
 #[derive(Serialize)]
 pub struct Conditions {
@@ -8,7 +12,8 @@ pub struct Conditions {
     pub temperature: Option<bigdecimal::BigDecimal>,
     pub humidity: Option<bigdecimal::BigDecimal>,
 }
-use diesel::sql_types::{Numeric, Text, Timestamptz};
+
+
 #[derive(QueryableByName, Debug)]
 
 pub struct AvgMinMax {
@@ -59,18 +64,22 @@ pub struct FilterAvgMinMax {
 
 #[derive(Queryable, Debug, Serialize)]
 pub struct ConditionView {
-    pub time: chrono::NaiveDateTime,
+    pub time: chrono:: DateTime<Utc> ,
     pub device_id: String,
     pub temperature: bigdecimal::BigDecimal,
 }
 
 impl ConditionView {
     pub fn attach(self) -> ConditionViewJson {
-        ConditionViewJson {
+         ConditionViewJson {
             device_id: self.device_id,
-            temperature: self.temperature.to_string(),
-            time: self.time.format(DATE_FORMAT).to_string(),
+            temperature: self.temperature.with_scale(3).to_string(),
+            time: ConditionView::converted(self.time),
         }
+    }
+    fn converted(time: chrono::DateTime<Utc> ) -> String {
+        let converted: DateTime<Local> = DateTime::from(time);
+        converted.format(DATE_FORMAT).to_string()
     }
 }
 

@@ -1,7 +1,7 @@
 use crate::auth::Auth;
 use crate::db;
 use crate::models;
-use chrono::Utc;
+use chrono::Local;
 use db::conditions::NewConditions;
 use models::utils::*;
 use rocket_contrib::json::{Json, JsonError, JsonValue};
@@ -20,8 +20,8 @@ pub fn conditions(
 
 #[get("/queryview")]
 pub fn query_view(_auth: Auth, conn: db::Conn) -> JsonValue {
-    let time = Utc::now();
-
+    let time = Local::now();
+    println!("time Local now {}", time);
     let halfhourago =
         db::conditions::query_view(
             halfourago(time), &conn);

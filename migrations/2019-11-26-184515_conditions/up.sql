@@ -6,7 +6,7 @@ create table conditions(
   PRIMARY KEY(time, device_id),
   FOREIGN KEY (device_id) REFERENCES locations (device_id)
 );
-SELECT create_hypertable('conditions', 'time', chunk_time_interval => interval '1 day');
+--SELECT create_hypertable('conditions', 'time', chunk_time_interval => interval '1 day');
 
 create or replace view avg_min_max as select
     c.device_id,
